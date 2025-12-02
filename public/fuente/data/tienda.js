@@ -60,6 +60,12 @@ async function loadProductsFromApi() {
 
 loadProductsFromApi();
 
+function ensureAdmin() {
+    if (!state.user || !state.user.admin) {
+        throw new Error("Solo un administrador puede realizar esta acción");
+    }
+}
+
 window.Utils = {
     CLP(n) {
         return new Intl.NumberFormat("es-CL", {
@@ -91,6 +97,7 @@ window.Store = {
         return state.productos.filter((p) => p.oferta);
     },
     async createProduct(prod) {
+        ensureAdmin();
         const res = await fetch(API_BASE + "/products", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -105,6 +112,7 @@ window.Store = {
         return saved;
     },
     async updateProduct(id, patch) {
+        ensureAdmin();
         const existing = state.productos.find((p) => p.id === id);
         if (!existing) {
             throw new Error("Producto no encontrado");
@@ -124,6 +132,7 @@ window.Store = {
         return saved;
     },
     async deleteProduct(id) {
+        ensureAdmin();
         const res = await fetch(API_BASE + "/products/" + id, {
             method: "DELETE",
         });

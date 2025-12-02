@@ -1,7 +1,21 @@
 function Registro() {
-    const [f, setF] = React.useState({ nombre: "", email: "", password: "" });
+    const [f, setF] = React.useState({
+        nombre: "",
+        email: "",
+        password: "",
+        admin: false,
+        adminCode: "",
+    });
     const [error, setError] = React.useState(null);
     const [loading, setLoading] = React.useState(false);
+
+    const onChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setF((prev) => ({
+            ...prev,
+            [name]: type === "checkbox" ? checked : value,
+        }));
+    };
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -26,8 +40,9 @@ function Registro() {
                     <input
                         type="text"
                         className="form-control"
+                        name="nombre"
                         value={f.nombre}
-                        onChange={(e) => setF({ ...f, nombre: e.target.value })}
+                        onChange={onChange}
                         required
                     />
                 </div>
@@ -36,8 +51,9 @@ function Registro() {
                     <input
                         type="email"
                         className="form-control"
+                        name="email"
                         value={f.email}
-                        onChange={(e) => setF({ ...f, email: e.target.value })}
+                        onChange={onChange}
                         required
                     />
                 </div>
@@ -46,11 +62,39 @@ function Registro() {
                     <input
                         type="password"
                         className="form-control"
+                        name="password"
                         value={f.password}
-                        onChange={(e) => setF({ ...f, password: e.target.value })}
+                        onChange={onChange}
                         required
                     />
                 </div>
+                <div className="col-12 form-check">
+                    <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="adminCheck"
+                        name="admin"
+                        checked={f.admin}
+                        onChange={onChange}
+                    />
+                    <label className="form-check-label" htmlFor="adminCheck">
+                        Cuenta administrador
+                    </label>
+                </div>
+                {f.admin && (
+                    <div className="col-12">
+                        <label className="form-label">Código administrador</label>
+                        <input
+                            type="password"
+                            className="form-control"
+                            name="adminCode"
+                            value={f.adminCode}
+                            onChange={onChange}
+                            placeholder="Ingresa el código secreto"
+                            required
+                        />
+                    </div>
+                )}
                 {error && (
                     <div className="col-12">
                         <div className="alert alert-danger">{error}</div>
