@@ -31,6 +31,8 @@ function App() {
         return React.createElement(Login);
       case "/registro":
         return React.createElement(Registro);
+      case "/admin":
+        return React.createElement(AdminProductos);
       default:
         return React.createElement(Inicio);
     }
@@ -42,11 +44,11 @@ function App() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
   return React.createElement(
-    React.Fragment,
-    null,
-    React.createElement(Navbar),
-    route(current),
-    React.createElement(Footer),
-    React.createElement(ModalProducto)
+      React.Fragment,
+      null,
+      React.createElement(Navbar),
+      route(current),
+      React.createElement(Footer),
+      React.createElement(ModalProducto)
   );
 }
