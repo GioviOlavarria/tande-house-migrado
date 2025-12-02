@@ -82,6 +82,9 @@ window.Store = {
         return loadProductsFromApi();
     },
     getByCategory(c) {
+        if (!c || c === "Todas") {
+            return state.productos;
+        }
         return state.productos.filter((p) => p.categoria === c);
     },
     getOffers() {
