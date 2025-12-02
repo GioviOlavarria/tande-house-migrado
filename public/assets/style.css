@@ -293,4 +293,8 @@ textarea.form-control {
 html, body { height: 100%; }
 body { min-height: 100vh; display: flex; flex-direction: column; }
 main { flex: 1 1 auto; }
-.navbar .navbar-toggler-icon { background-image: var(--bs-navbar-toggler-icon-bg); }
+
+.navbar {
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+}

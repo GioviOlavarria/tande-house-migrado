@@ -100,9 +100,9 @@ function Registro() {
                         <div className="alert alert-danger">{error}</div>
                     </div>
                 )}
-                <div className="col-12 d-flex gap-2 align-items-center">
+                <div className="col-12 d-flex gap-2">
                     <button className="btn btn-primary" type="submit" disabled={loading}>
-                        {loading ? "Creando..." : "Crear cuenta"}
+                        {loading ? "Creando..." : "Registrarme"}
                     </button>
                     <a className="btn btn-outline-secondary" href="#/">
                         Cancelar

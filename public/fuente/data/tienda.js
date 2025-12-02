@@ -43,7 +43,10 @@ async function loadProductsFromApi() {
         }
         const data = await res.json();
         state.productos = data;
-        state.categorias = ["Todas", ...Array.from(new Set(data.map((p) => p.categoria)))];
+        state.categorias = [
+            "Todas",
+            ...Array.from(new Set(data.map((p) => p.categoria))),
+        ];
         state.loadingProducts = false;
         state.errorProducts = null;
         notify("products:changed", state.productos);

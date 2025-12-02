@@ -1,7 +1,7 @@
 function Navbar() {
     const sum = (arr) => arr.reduce((a, b) => a + b.qty, 0);
 
-    const [cartCount, setCartCount] = React.useState(
+    const [count, setCount] = React.useState(
         sum(window.Store.getState().cart || [])
     );
     const [user, setUser] = React.useState(window.Auth.getUser());
@@ -9,7 +9,7 @@ function Navbar() {
     React.useEffect(() => {
         const unsubscribe = window.Store.subscribe((e) => {
             if (e.type === "cart:changed") {
-                setCartCount(sum(e.payload || []));
+                setCount(sum(e.payload || []));
             }
             if (e.type === "auth:changed") {
                 setUser(e.payload);
@@ -21,12 +21,9 @@ function Navbar() {
     const isAdmin = user && user.admin;
 
     return (
-        <nav className="navbar navbar-expand-lg bg-body-tertiary">
+        <nav className="navbar navbar-expand-lg bg-body-tertiary py-2">
             <div className="container">
-                <a
-                    className="navbar-brand d-flex align-items-center gap-2"
-                    href="#/"
-                >
+                <a className="navbar-brand d-flex align-items-center gap-2" href="#/">
                     <img src="assets/logo.png" alt="" width="28" height="28" />
                     <span>TandeHouse</span>
                 </a>
@@ -83,9 +80,9 @@ function Navbar() {
                         <li className="nav-item ms-3 me-2">
                             <a className="nav-link position-relative" href="#/carrito">
                                 <i className="bi bi-cart3"></i>
-                                {cartCount > 0 && (
+                                {count > 0 && (
                                     <span className="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle">
-                    {cartCount}
+                    {count}
                   </span>
                                 )}
                             </a>
@@ -112,9 +109,7 @@ function Navbar() {
                                 </a>
                                 <ul className="dropdown-menu dropdown-menu-end">
                                     <li>
-                    <span className="dropdown-item-text">
-                      {user.email}
-                    </span>
+                                        <span className="dropdown-item-text">{user.email}</span>
                                     </li>
                                     <li>
                                         <hr className="dropdown-divider" />
