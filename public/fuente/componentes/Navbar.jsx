@@ -13,7 +13,7 @@ function Navbar() {
     const cartQty = state.cart.reduce((acc, item) => acc + item.qty, 0);
 
     return (
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-2">
             <div className="container">
                 <a className="navbar-brand" href="#/">
                     TandeHouse
@@ -29,6 +29,7 @@ function Navbar() {
                 >
                     <span className="navbar-toggler-icon"></span>
                 </button>
+
                 <div className="collapse navbar-collapse" id="navbarMain">
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                         <li className="nav-item">
@@ -69,6 +70,7 @@ function Navbar() {
                             </li>
                         )}
                     </ul>
+
                     <ul className="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
                         <li className="nav-item me-3">
                             <a className="nav-link position-relative" href="#/carrito">
@@ -80,6 +82,7 @@ function Navbar() {
                                 )}
                             </a>
                         </li>
+
                         {!user && (
                             <li className="nav-item">
                                 <a className="nav-link" href="#/login">
@@ -88,6 +91,7 @@ function Navbar() {
                                 </a>
                             </li>
                         )}
+
                         {user && (
                             <li className="nav-item dropdown">
                                 <a
@@ -101,7 +105,10 @@ function Navbar() {
                                     <i className="bi bi-person-circle me-1"></i>
                                     {user.nombre || user.email}
                                 </a>
-                                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <ul
+                                    className="dropdown-menu dropdown-menu-end"
+                                    aria-labelledby="userDropdown"
+                                >
                                     <li>
                                         <span className="dropdown-item-text">{user.email}</span>
                                     </li>

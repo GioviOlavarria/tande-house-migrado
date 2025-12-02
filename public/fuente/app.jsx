@@ -1,54 +1,83 @@
 function App() {
-  const route = (h) => {
-    if (h.startsWith("/producto/"))
-      return React.createElement(ModalProducto ? React.Fragment : Detalle);
-    if (h.startsWith("/blog/")) return React.createElement(BlogDetalle);
-    if (h.startsWith("/error")) return React.createElement(ErrorCompra);
-    switch (h) {
-      case "/":
-        return React.createElement(Inicio);
-      case "/productos":
-        return React.createElement(Productos);
-      case "/categorias":
-        return React.createElement(Categorias);
-      case "/ofertas":
-        return React.createElement(Ofertas);
-      case "/carrito":
-        return React.createElement(Carrito);
-      case "/checkout":
-        return React.createElement(Checkout);
-      case "/exito":
-        return React.createElement(Exito);
-      case "/fallo":
-        return React.createElement(Fallo);
-      case "/sobre":
-        return React.createElement(Sobre);
-      case "/blog":
-        return React.createElement(Blog);
-      case "/contacto":
-        return React.createElement(Contacto);
-      case "/login":
-        return React.createElement(Login);
-      case "/registro":
-        return React.createElement(Registro);
-      case "/admin":
-        return React.createElement(AdminProductos);
-      default:
-        return React.createElement(Inicio);
-    }
-  };
-  const [current, setCurrent] = React.useState(window.Router.current());
+  const [route, setRoute] = React.useState(() => window.Router.current());
+
   React.useEffect(() => {
-    const onHash = () => setCurrent(window.Router.current());
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
+    const stop = window.Router.listen((r) => {
+      setRoute(r);
+      window.scrollTo(0, 0);
+    });
+    return stop;
   }, []);
-  return React.createElement(
-      React.Fragment,
-      null,
-      React.createElement(Navbar),
-      route(current),
-      React.createElement(Footer),
-      React.createElement(ModalProducto)
+
+  let Page = Inicio;
+
+  switch (route.path) {
+    case "/":
+      Page = Inicio;
+      break;
+    case "/productos":
+      Page = Productos;
+      break;
+    case "/categorias":
+      Page = Categorias;
+      break;
+    case "/ofertas":
+      Page = Ofertas;
+      break;
+    case "/carrito":
+      Page = Carrito;
+      break;
+    case "/checkout":
+      Page = Checkout;
+      break;
+    case "/exito":
+      Page = Exito;
+      break;
+    case "/fallo":
+      Page = Fallo;
+      break;
+    case "/errorcompra":
+      Page = ErrorCompra;
+      break;
+    case "/sobre":
+      Page = Sobre;
+      break;
+    case "/blog":
+      Page = Blog;
+      break;
+    case "/blogdetalle":
+      Page = BlogDetalle;
+      break;
+    case "/contacto":
+      Page = Contacto;
+      break;
+    case "/login":
+      Page = Login;
+      break;
+    case "/registro":
+      Page = Registro;
+      break;
+    case "/detalle":
+      Page = Detalle;
+      break;
+    case "/pago":
+      Page = PasarelaPago;
+      break;
+    case "/admin":
+      Page = AdminProductos;
+      break;
+    default:
+      Page = Inicio;
+      break;
+  }
+
+  return (
+      <div className="d-flex flex-column min-vh-100">
+        <Navbar />
+        <main className="flex-grow-1">
+          <Page route={route} />
+        </main>
+        <Footer />
+      </div>
   );
 }
