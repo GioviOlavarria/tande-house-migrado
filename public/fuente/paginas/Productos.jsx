@@ -63,7 +63,10 @@ function Productos() {
                 {list.map((p) => (
                     <div className="col-6 col-sm-4 col-md-3" key={p.id}>
                         <BordeProducto>
-                            <TarjetaProducto producto={p} />
+                            <TarjetaProducto
+                                product={p}
+                                onAdd={(x) => window.Store.addToCart(x, 1)}
+                            />
                         </BordeProducto>
                     </div>
                 ))}
