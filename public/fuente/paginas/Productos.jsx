@@ -1,56 +1,72 @@
 function Productos() {
     const [q, setQ] = React.useState("");
     const [cat, setCat] = React.useState("Todas");
-    const [items, setItems] = React.useState(window.Store.getState().productos);
-    React.useEffect(
-        () =>
-            window.Store.subscribe((e) => {
-                if (e.type === "products:changed")
-                    setItems(window.Store.getState().productos);
-            }),
-        []
+
+    const initialState = window.Store.getState();
+    const [items, setItems] = React.useState(initialState.productos);
+    const [categorias, setCategorias] = React.useState(
+        initialState.categorias || ["Todas"]
     );
+
+    React.useEffect(() => {
+        return window.Store.subscribe((e) => {
+            if (e.type === "products:changed") {
+                const s = window.Store.getState();
+                setItems(s.productos);
+                setCategorias(s.categorias || ["Todas"]);
+            }
+        });
+    }, []);
+
     const list = items.filter(
         (p) =>
             (cat === "Todas" || p.categoria === cat) &&
             p.nombre.toLowerCase().includes(q.toLowerCase())
     );
+
     return (
         <div className="container py-4">
-            <h4 className="mb-3">Productos</h4>
-            <div className="row g-2 mb-3">
-                <div className="col-8 col-sm-6">
+            <h2 className="mb-3">Productos</h2>
+
+            <div className="row mb-3">
+                <div className="col-12 col-md-8 mb-2 mb-md-0">
                     <input
+                        type="text"
                         className="form-control"
                         placeholder="Buscar"
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
                     />
                 </div>
-                <div className="col-4 col-sm-3">
+                <div className="col-12 col-md-4">
                     <select
                         className="form-select"
                         value={cat}
                         onChange={(e) => setCat(e.target.value)}
                     >
-                        <option>Todas</option>
-                        {window.Store.getState().categorias.map((c) => (
-                            <option key={c}>{c}</option>
+                        {categorias.map((c) => (
+                            <option key={c} value={c}>
+                                {c}
+                            </option>
                         ))}
                     </select>
                 </div>
             </div>
+
             <div className="row g-3">
                 {list.map((p) => (
                     <div className="col-6 col-sm-4 col-md-3" key={p.id}>
                         <BordeProducto>
-                            <TarjetaProducto
-                                product={p}
-                                onAdd={(x) => window.Store.addToCart(x, 1)}
-                            />
+                            <TarjetaProducto producto={p} />
                         </BordeProducto>
                     </div>
                 ))}
+
+                {list.length === 0 && (
+                    <div className="col-12 text-center text-muted py-5">
+                        No se encontraron productos.
+                    </div>
+                )}
             </div>
         </div>
     );
