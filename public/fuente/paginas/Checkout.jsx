@@ -27,7 +27,7 @@ function Checkout() {
         return;
       }
       window.Store.clearCart();
-      location.hash = "#/exito";
+      location.hash = "#/pago";
     }, 800);
   };
   return (

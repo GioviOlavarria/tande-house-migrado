@@ -69,6 +69,12 @@ function ensureAdmin() {
     }
 }
 
+function getStockFor(id) {
+    const p = state.productos.find((x) => x.id === id);
+    if (!p) return 0;
+    return typeof p.stock === "number" ? p.stock : 0;
+}
+
 window.Utils = {
     CLP(n) {
         return new Intl.NumberFormat("es-CL", {
@@ -146,10 +152,18 @@ window.Store = {
         notify("products:changed", state.productos);
     },
     addToCart(item, qty = 1) {
-        const idx = state.cart.findIndex((x) => x.id === item.id);
-        if (idx >= 0) {
+        const stock = getStockFor(item.id);
+        const current = state.cart.find((x) => x.id === item.id);
+        const currentQty = current ? current.qty : 0;
+        const desired = currentQty + qty;
+        if (stock > 0 && desired > stock) {
+            alert("No hay stock suficiente para este producto.");
+            return;
+        }
+        if (current) {
             const updated = [...state.cart];
-            updated[idx] = { ...updated[idx], qty: updated[idx].qty + qty };
+            const idx = updated.findIndex((x) => x.id === item.id);
+            updated[idx] = { ...updated[idx], qty: desired };
             state.cart = updated;
         } else {
             state.cart = [...state.cart, { ...item, qty }];
@@ -158,7 +172,13 @@ window.Store = {
         notify("cart:changed", state.cart);
     },
     setQty(id, qty) {
-        state.cart = state.cart.map((x) => (x.id === id ? { ...x, qty } : x));
+        const stock = getStockFor(id);
+        const value = qty < 1 ? 1 : qty;
+        if (stock > 0 && value > stock) {
+            alert("No hay stock suficiente.");
+            return;
+        }
+        state.cart = state.cart.map((x) => (x.id === id ? { ...x, qty: value } : x));
         persist.save(LS_CART, state.cart);
         notify("cart:changed", state.cart);
     },

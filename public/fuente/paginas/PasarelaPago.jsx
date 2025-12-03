@@ -1,10 +1,40 @@
 function PasarelaPago() {
     const state = window.Store.getState();
     const total = state.cart.reduce((acc, item) => acc + item.precio * item.qty, 0);
+    const [error, setError] = React.useState(null);
+    const [processing, setProcessing] = React.useState(false);
 
-    const handleExito = () => {
-        window.Store.clearCart();
-        location.hash = "#/exito";
+    const enviarOrden = async () => {
+        const items = state.cart.map((item) => ({
+            productId: item.id,
+            quantity: item.qty,
+        }));
+        const urlBase =
+            window.API_BASE_URL ||
+            "https://tande-house-backend-production.up.railway.app/api";
+        const res = await fetch(urlBase + "/orders", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ items }),
+        });
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text || "Error al procesar la orden");
+        }
+    };
+
+    const handleExito = async () => {
+        setError(null);
+        setProcessing(true);
+        try {
+            await enviarOrden();
+            window.Store.clearCart();
+            setProcessing(false);
+            location.hash = "#/exito";
+        } catch (e) {
+            setProcessing(false);
+            setError(e.message || "Error en el pago");
+        }
     };
 
     const handleFallo = () => {
@@ -39,6 +69,7 @@ function PasarelaPago() {
                             <span>{window.Utils.CLP(total)}</span>
                         </li>
                     </ul>
+                    {error && <div className="alert alert-danger mb-0">{error}</div>}
                 </div>
             </div>
 
@@ -62,8 +93,13 @@ function PasarelaPago() {
             </div>
 
             <div className="d-flex flex-wrap gap-2">
-                <button className="btn btn-success" type="button" onClick={handleExito}>
-                    Simular pago exitoso
+                <button
+                    className="btn btn-success"
+                    type="button"
+                    onClick={handleExito}
+                    disabled={processing}
+                >
+                    {processing ? "Procesando..." : "Simular pago exitoso"}
                 </button>
                 <button className="btn btn-warning" type="button" onClick={handleFallo}>
                     Simular pago rechazado

@@ -7,6 +7,7 @@ function AdminProductos() {
         categoria: "",
         oferta: false,
         sku: "",
+        stock: "",
     };
 
     const user = window.Auth.getUser();
@@ -85,6 +86,7 @@ function AdminProductos() {
                 categoria: form.categoria,
                 oferta: !!form.oferta,
                 sku: form.sku,
+                stock: form.stock === "" ? 0 : parseInt(form.stock || "0", 10),
             };
             if (editingId) {
                 await window.Store.updateProduct(editingId, payload);
@@ -109,6 +111,7 @@ function AdminProductos() {
             categoria: p.categoria || "",
             oferta: !!p.oferta,
             sku: p.sku || "",
+            stock: p.stock != null ? String(p.stock) : "",
         });
         setImagePreview(p.portada || "");
     };
@@ -222,6 +225,17 @@ function AdminProductos() {
                                         onChange={handleChange}
                                     />
                                 </div>
+                                <div className="col-12">
+                                    <label className="form-label">Stock</label>
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        name="stock"
+                                        value={form.stock}
+                                        onChange={handleChange}
+                                        min="0"
+                                    />
+                                </div>
                                 <div className="col-12 form-check">
                                     <input
                                         className="form-check-input"
@@ -274,6 +288,7 @@ function AdminProductos() {
                                         <th>Nombre</th>
                                         <th>Precio</th>
                                         <th>Categoría</th>
+                                        <th>Stock</th>
                                         <th>Oferta</th>
                                         <th></th>
                                     </tr>
@@ -285,6 +300,7 @@ function AdminProductos() {
                                             <td>{p.nombre}</td>
                                             <td>{window.Utils.CLP(p.precio)}</td>
                                             <td>{p.categoria}</td>
+                                            <td>{p.stock != null ? p.stock : 0}</td>
                                             <td>{p.oferta ? "Sí" : "No"}</td>
                                             <td className="text-end">
                                                 <div className="btn-group btn-group-sm">
@@ -308,7 +324,7 @@ function AdminProductos() {
                                     ))}
                                     {productos.length === 0 && (
                                         <tr>
-                                            <td colSpan="6" className="text-center py-3">
+                                            <td colSpan="7" className="text-center py-3">
                                                 No hay productos
                                             </td>
                                         </tr>
