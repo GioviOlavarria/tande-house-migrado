@@ -1,21 +1,27 @@
 function Productos() {
     const [q, setQ] = React.useState("");
     const [cat, setCat] = React.useState("Todas");
-
-    const initialState = window.Store.getState();
-    const [items, setItems] = React.useState(initialState.productos);
-    const [categorias, setCategorias] = React.useState(
-        initialState.categorias || ["Todas"]
-    );
+    const [items, setItems] = React.useState([]);
+    const [categorias, setCategorias] = React.useState(["Todas"]);
 
     React.useEffect(() => {
-        return window.Store.subscribe((e) => {
+        function syncFromStore() {
+            const s = window.Store.getState();
+            setItems(s.productos || []);
+            setCategorias(s.categorias || ["Todas"]);
+        }
+
+        syncFromStore();
+
+        const unsubscribe = window.Store.subscribe((e) => {
             if (e.type === "products:changed") {
-                const s = window.Store.getState();
-                setItems(s.productos);
-                setCategorias(s.categorias || ["Todas"]);
+                syncFromStore();
             }
         });
+
+        window.Store.reloadProducts();
+
+        return unsubscribe;
     }, []);
 
     const list = items.filter(
