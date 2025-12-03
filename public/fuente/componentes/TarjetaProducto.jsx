@@ -15,7 +15,7 @@ function TarjetaProducto({ product, onAdd }) {
             <div className="card-body d-flex flex-column">
                 <h6 className="card-title mb-1">{product.nombre}</h6>
                 <small className="text-muted">
-                    {product.sku} · {sinStock ? "Sin stock" : `Stock: ${stock}`}
+                    {product.sku} · {sinStock ? "AGOTADO" : `Stock: ${stock}`}
                 </small>
                 <div className="mt-auto d-flex align-items-center justify-content-between">
                     <strong>{window.Utils.CLP(product.precio)}</strong>

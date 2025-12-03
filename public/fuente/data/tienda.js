@@ -156,15 +156,19 @@ window.Store = {
         const current = state.cart.find((x) => x.id === item.id);
         const currentQty = current ? current.qty : 0;
         const desired = currentQty + qty;
-        if (stock > 0 && desired > stock) {
+
+        if (stock <= 0) {
+            alert("Este producto está AGOTADO.");
+            return;
+        }
+        if (desired > stock) {
             alert("No hay stock suficiente para este producto.");
             return;
         }
         if (current) {
-            const updated = [...state.cart];
-            const idx = updated.findIndex((x) => x.id === item.id);
-            updated[idx] = { ...updated[idx], qty: desired };
-            state.cart = updated;
+            state.cart = state.cart.map((x) =>
+                x.id === item.id ? { ...x, qty: desired } : x
+            );
         } else {
             state.cart = [...state.cart, { ...item, qty }];
         }
