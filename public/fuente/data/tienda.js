@@ -24,11 +24,15 @@ const persist = {
     },
 };
 
+
+const savedAuth = persist.load(LS_USER, null);
+
 let state = {
     productos: [],
     categorias: ["Todas"],
     cart: persist.load(LS_CART, []),
-    user: persist.load(LS_USER, null),
+    user: savedAuth ? savedAuth.user : null,
+    token: savedAuth ? savedAuth.token : null,
     loadingProducts: false,
     errorProducts: null,
 };
@@ -75,6 +79,15 @@ function getStockFor(id) {
     return typeof p.stock === "number" ? p.stock : 0;
 }
 
+
+function authHeaders(extra = {}) {
+    const headers = { ...extra };
+    if (state.token) {
+        headers["Authorization"] = "Bearer " + state.token;
+    }
+    return headers;
+}
+
 window.Utils = {
     CLP(n) {
         return new Intl.NumberFormat("es-CL", {
@@ -91,6 +104,7 @@ window.Store = {
         return () => listeners.delete(fn);
     },
     getState() {
+
         return JSON.parse(JSON.stringify(state));
     },
     reloadProducts() {
@@ -109,7 +123,7 @@ window.Store = {
         ensureAdmin();
         const res = await fetch(API_BASE + "/products", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: authHeaders({ "Content-Type": "application/json" }),
             body: JSON.stringify(prod),
         });
         if (!res.ok) {
@@ -129,7 +143,7 @@ window.Store = {
         const body = { ...existing, ...patch };
         const res = await fetch(API_BASE + "/products/" + id, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: authHeaders({ "Content-Type": "application/json" }),
             body: JSON.stringify(body),
         });
         if (!res.ok) {
@@ -144,6 +158,7 @@ window.Store = {
         ensureAdmin();
         const res = await fetch(API_BASE + "/products/" + id, {
             method: "DELETE",
+            headers: authHeaders(),
         });
         if (!res.ok) {
             throw new Error("Error eliminando producto");
@@ -209,11 +224,14 @@ window.Auth = {
             body: JSON.stringify({ email, password }),
         });
         if (!res.ok) {
-            throw new Error("Credenciales inválidas");
+            const text = await res.text();
+            throw new Error(text || "Credenciales inválidas");
         }
-        const user = await res.json();
+
+        const { user, token } = await res.json();
         state.user = user;
-        persist.save(LS_USER, user);
+        state.token = token || null;
+        persist.save(LS_USER, { user: state.user, token: state.token });
         notify("auth:changed", user);
     },
     async register(data) {
@@ -223,15 +241,18 @@ window.Auth = {
             body: JSON.stringify(data),
         });
         if (!res.ok) {
-            throw new Error("No se pudo registrar");
+            const text = await res.text();
+            throw new Error(text || "No se pudo registrar");
         }
-        const user = await res.json();
+        const { user, token } = await res.json();
         state.user = user;
-        persist.save(LS_USER, user);
+        state.token = token || null;
+        persist.save(LS_USER, { user: state.user, token: state.token });
         notify("auth:changed", user);
     },
     logout() {
         state.user = null;
+        state.token = null;
         persist.save(LS_USER, null);
         notify("auth:changed", null);
     },

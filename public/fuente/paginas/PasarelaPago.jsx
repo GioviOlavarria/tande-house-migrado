@@ -5,23 +5,40 @@ function PasarelaPago() {
     const [processing, setProcessing] = React.useState(false);
 
     const enviarOrden = async () => {
+        const state = window.Store.getState();
         const items = state.cart.map((item) => ({
             productId: item.id,
             quantity: item.qty,
         }));
+
+        if (!items.length) {
+            throw new Error("El carrito está vacío");
+        }
+
+        if (!state.token) {
+            throw new Error("Debes iniciar sesión antes de pagar.");
+        }
+
         const urlBase =
             window.API_BASE_URL ||
             "https://tande-house-backend-production.up.railway.app/api";
+
         const res = await fetch(urlBase + "/orders", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + state.token,
+            },
             body: JSON.stringify({ items }),
         });
+
         if (!res.ok) {
             const text = await res.text();
+            console.error("Error /api/orders:", res.status, text);
             throw new Error(text || "Error al procesar la orden");
         }
     };
+
 
     const handleExito = async () => {
         setError(null);
