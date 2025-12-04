@@ -28,7 +28,7 @@ function PasarelaPago() {
         setProcessing(true);
         try {
             await enviarOrden();
-            window.Store.clearCart();
+            window.Store.clearCart();  // ✅ ESTE es el lugar correcto
             setProcessing(false);
             location.hash = "#/exito";
         } catch (e) {

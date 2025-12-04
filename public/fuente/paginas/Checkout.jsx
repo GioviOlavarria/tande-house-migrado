@@ -26,7 +26,6 @@ function Checkout() {
         location.hash = "#/error?code=" + code;
         return;
       }
-      window.Store.clearCart();
       location.hash = "#/pago";
     }, 800);
   };
