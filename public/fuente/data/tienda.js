@@ -214,13 +214,22 @@ window.Payments = {
         if (!state.user) throw new Error("Debes iniciar sesión");
         if (!state.cart.length) throw new Error("Carrito vacío");
 
+        const email = String(state.user.email || "").trim();
+        const amount = Math.trunc(state.cart.reduce((acc, item) => acc + (item.precio * item.qty), 0));
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            throw new Error("Email inválido para Flow");
+        }
+        if (amount <= 0) {
+            throw new Error("Monto inválido");
+        }
+
+        const commerceOrder = `TH-${state.user.id}-${Date.now()}`;
         const payload = {
-            email: state.user.email,
-            userId: state.user.id,
-            cart: state.cart.map((x) => ({
-                productId: x.id,
-                quantity: x.qty,
-            })),
+            commerceOrder,
+            subject: `Compra TandeHouse ${commerceOrder}`,
+            amount,
+            email,
         };
 
         const res = await fetch(PAYMENT_API + "/flow/create", {
