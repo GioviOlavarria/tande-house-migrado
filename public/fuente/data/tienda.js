@@ -1,19 +1,16 @@
 
 
 const USER_API =
-    window.USER_API_BASE_URL ||
-    import.meta?.env?.VITE_USER_API ||
-    "http://localhost:8081";
+    window.USER_API_BASE_URL;
 
 const PRODUCT_API =
-    window.PRODUCT_API_BASE_URL ||
-    import.meta?.env?.VITE_PRODUCT_API ||
-    "http://localhost:8082";
+    window.PRODUCT_API_BASE_URL;
 
 const PAYMENT_API =
-    window.PAYMENT_API_BASE_URL ||
-    import.meta?.env?.VITE_PAYMENT_API ||
-    "http://localhost:8083";
+    window.PAYMENT_API_BASE_URL;
+
+const BILLING_API =
+    window.BILLING_API_BASE_URL;
 
 const LS_CART = "th_cart_v1";
 const LS_AUTH = "th_auth_v2";
