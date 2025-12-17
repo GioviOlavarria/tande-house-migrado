@@ -230,8 +230,8 @@ window.Payments = {
         });
 
         if (!res.ok) {
-            const text = await res.text();
-            throw new Error("Payment API " + res.status + ": " + text);
+            const text = await res.text().catch(() => "");
+            throw new Error("No se pudo iniciar el pago (" + res.status + "): " + text);
         }
 
         return res.json();
