@@ -10,7 +10,12 @@ function PasarelaPago() {
         try {
             const data = await window.Payments.startFlowPayment();
 
-            window.location.href = data.paymentUrl;
+            if (!data.url || data.url === "undefined" || data.url === "null" || data.url.includes("undefined")) {
+                throw new Error("URL de pago inválida recibida del servidor");
+            }
+
+            window.location.href = data.url;
+
         } catch (e) {
             setProcessing(false);
             setError(e.message || "No se pudo iniciar el pago con Flow");

@@ -242,6 +242,18 @@ window.Payments = {
             const text = await res.text().catch(() => "");
             throw new Error("No se pudo iniciar el pago (" + res.status + "): " + text);
         }
+        const data = await res.json();
+
+        console.log("=== RESPUESTA DEL BACKEND ===");
+        console.log("Data recibida:", data);
+        console.log("URL:", data.url);
+        console.log("Token:", data.token);
+
+        if (!data.url || data.url === "undefined" || data.url === "null") {
+            throw new Error("El backend no devolvió una URL válida");
+        }
+
+        return data;
 
         return res.json();
     },
