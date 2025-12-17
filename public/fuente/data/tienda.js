@@ -223,7 +223,7 @@ window.Payments = {
             })),
         };
 
-        const res = await fetch(PAYMENT_API + "/flow/create", {
+        const res = await fetch(PAYMENT_API + "/api/payments/flow/create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
