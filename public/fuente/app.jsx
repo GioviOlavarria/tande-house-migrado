@@ -1,15 +1,18 @@
 function App() {
   const route = (h) => {
-    if (h.startsWith("/producto/")) {
+    const cleanPath = h.split('?')[0];
+
+    if (cleanPath.startsWith("/producto/")) {
       return React.createElement(ModalProducto ? React.Fragment : Detalle);
     }
-    if (h.startsWith("/blog/")) {
+    if (cleanPath.startsWith("/blog/")) {
       return React.createElement(BlogDetalle);
     }
-    if (h.startsWith("/error")) {
+    if (cleanPath.startsWith("/error")) {
       return React.createElement(ErrorCompra);
     }
-    switch (h) {
+
+    switch (cleanPath) {
       case "/":
         return React.createElement(Inicio);
       case "/productos":

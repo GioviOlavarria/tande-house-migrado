@@ -3,7 +3,6 @@ function Exito() {
     const [err, setErr] = React.useState("");
     const [flow, setFlow] = React.useState(null);
     const [boleta, setBoleta] = React.useState(null);
-
     const [showModal, setShowModal] = React.useState(true);
 
     const PAYMENT_API = window.PAYMENT_API_BASE_URL;
@@ -21,37 +20,86 @@ function Exito() {
     React.useEffect(() => {
         (async () => {
             try {
-                if (!PAYMENT_API) throw new Error("Falta window.PAYMENT_API_BASE_URL en index.html");
-                if (!BILLING_API) throw new Error("Falta window.BILLING_API_BASE_URL en index.html");
+                console.log("=== INICIO VALIDACION ===");
+                console.log("PAYMENT_API:", PAYMENT_API);
+                console.log("BILLING_API:", BILLING_API);
+                console.log("Hash completo:", window.location.hash);
+
+                if (!PAYMENT_API) {
+                    throw new Error("Falta window.PAYMENT_API_BASE_URL en index.html");
+                }
+                if (!BILLING_API) {
+                    throw new Error("Falta window.BILLING_API_BASE_URL en index.html");
+                }
 
                 const token = getTokenFromHash();
-                if (!token) throw new Error("No llegó token desde Flow. Revisa urlReturn (debe apuntar a #/exito?token=...).");
+                console.log("Token extraído:", token);
 
-                const r1 = await fetch(`${PAYMENT_API}/flow/return?token=${encodeURIComponent(token)}`);
-                if (!r1.ok) throw new Error(await r1.text());
+                if (!token) {
+                    throw new Error("No llegó token desde Flow");
+                }
+
+                const url = `${PAYMENT_API}/flow/return?token=${encodeURIComponent(token)}`;
+                console.log("URL completa a llamar:", url);
+
+                const r1 = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    mode: 'cors'
+                });
+
+                console.log("Status response:", r1.status);
+                console.log("Response OK:", r1.ok);
+
+                if (!r1.ok) {
+                    const errorText = await r1.text();
+                    console.error("Error response:", errorText);
+                    throw new Error(`Error ${r1.status}: ${errorText}`);
+                }
+
                 const flowData = await r1.json();
+                console.log("Flow data:", flowData);
                 setFlow(flowData);
 
-                const status = Number(flowData.status);
-                const commerceOrder = flowData.commerceOrder || flowData.commerce_order;
-                if (status !== 2 || !commerceOrder) {
+                const status = flowData.status;
+                const commerceOrder = flowData.commerceOrder;
+
+                if (status !== "PAID" || !commerceOrder) {
+                    console.log("Pago no exitoso, redirigiendo a fallo");
                     window.location.hash = "#/fallo";
                     return;
                 }
 
+                console.log("Esperando 2 segundos antes de buscar boleta...");
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                console.log("Buscando boleta...");
                 const r2 = await fetch(`${BILLING_API}/boletas/byCommerceOrder/${encodeURIComponent(commerceOrder)}`);
-                if (!r2.ok) throw new Error(await r2.text());
+
+                if (!r2.ok) {
+                    const errorText = await r2.text();
+                    throw new Error(`Error obteniendo boleta ${r2.status}: ${errorText}`);
+                }
+
                 const b = await r2.json();
+                console.log("Boleta recibida:", b);
                 setBoleta(b);
 
                 window.Store.clearCart();
+                console.log("=== VALIDACION EXITOSA ===");
+
             } catch (e) {
+                console.error("=== ERROR EN VALIDACION ===");
+                console.error("Error completo:", e);
+                console.error("Stack:", e.stack);
                 setErr(e?.message || "Error validando pago/boleta");
             } finally {
                 setLoading(false);
             }
         })();
-    }, []);
+    }, [PAYMENT_API, BILLING_API]);
 
     const closeModal = () => setShowModal(false);
 
@@ -74,7 +122,7 @@ function Exito() {
 
             {!loading && !err && (
                 <div className="text-center">
-                    <h3>Compra exitosa ✅</h3>
+                    <h3>Compra exitosa</h3>
                     <p className="text-muted">Pago confirmado por Flow.</p>
 
                     <div className="d-flex justify-content-center gap-2 flex-wrap">
@@ -88,7 +136,6 @@ function Exito() {
                 </div>
             )}
 
-            {/* Modal Boleta */}
             {boleta && showModal && (
                 <div className="modal fade show" style={{ display: "block" }} tabIndex="-1" role="dialog">
                     <div className="modal-dialog modal-lg" role="document">
@@ -103,7 +150,7 @@ function Exito() {
                                     <div className="col-md-6">
                                         <div><strong>Folio:</strong> {boleta.folio}</div>
                                         <div><strong>Orden:</strong> {boleta.commerceOrder}</div>
-                                        <div><strong>Fecha:</strong> {boleta.createdAt}</div>
+                                        <div><strong>Fecha:</strong> {new Date(boleta.createdAt).toLocaleString()}</div>
                                     </div>
                                     <div className="col-md-6">
                                         <div><strong>Neto:</strong> {window.Utils.CLP(boleta.neto)}</div>
@@ -111,30 +158,6 @@ function Exito() {
                                         <div><strong>Total:</strong> {window.Utils.CLP(boleta.total)}</div>
                                     </div>
                                 </div>
-
-                                {Array.isArray(boleta.items) && boleta.items.length > 0 && (
-                                    <div className="mt-4">
-                                        <h6>Detalle</h6>
-                                        <ul className="list-group">
-                                            {boleta.items.map((it, idx) => (
-                                                <li key={idx} className="list-group-item d-flex justify-content-between">
-                                                    <span>{it.nombre || it.productName || it.productId} × {it.quantity}</span>
-                                                    <span>{it.total ? window.Utils.CLP(it.total) : ""}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-
-
-                                {flow && (
-                                    <div className="mt-4">
-                                        <h6 className="text-muted">Debug Flow</h6>
-                                        <pre className="mb-0" style={{ whiteSpace: "pre-wrap" }}>
-                      {JSON.stringify(flow, null, 2)}
-                    </pre>
-                                    </div>
-                                )}
                             </div>
 
                             <div className="modal-footer">
@@ -148,7 +171,6 @@ function Exito() {
                         </div>
                     </div>
 
-                    {/* backdrop */}
                     <div
                         className="modal-backdrop fade show"
                         onClick={closeModal}
