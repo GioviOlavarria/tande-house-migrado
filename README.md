@@ -1,2 +1,2 @@
 # tande-house
-Página web sobre pokémon TCG creada para las futuras evaluacines parciales
+Página web sobre pokémon TCG creada para ser totalmente funcional a futuro. 
