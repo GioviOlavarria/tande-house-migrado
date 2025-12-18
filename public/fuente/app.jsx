@@ -27,6 +27,8 @@ function App() {
         return React.createElement(Checkout);
       case "/exito":
         return React.createElement(Exito);
+      case "/payment-success":
+        return React.createElement(PaymentSuccess);
       case "/fallo":
         return React.createElement(Fallo);
       case "/sobre":
